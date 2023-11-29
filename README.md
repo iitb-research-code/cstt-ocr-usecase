@@ -11,9 +11,9 @@ brew install poppler
 
 ## Execution Command
 
-```
-python main.py -i *INPUT_PDF_or_IMAGE_PATH* -im *TYPE_of_INPUT* -l *LANGUAGE_MODEL* -m *MODE_OF_EXTRACTION* -s *START_PAGE* -e *END_PAGE*
-```
+<pre>
+python main.py -i <strong>INPUT_PDF_or_IMAGE_PATH</strong> -im <strong>TYPE_of_INPUT</strong> -l <strong>LANGUAGE_MODEL</strong> -m <strong>MODE_OF_EXTRACTION</strong> -s <strong>START_PAGE</strong> -e <strong>END_PAGE</strong>
+</pre>
 
 ## Different Modes of Execution
 
