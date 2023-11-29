@@ -34,11 +34,6 @@ python main.py -i <strong>INPUT_PDF_or_IMAGE_PATH</strong> -im <strong>TYPE_of_I
 
 ## Authors
 
-1. Badri Vishal Kasuba, MS Student
-2. Shourya Tyagi, Intern
-3. Pranav Dalvi, Intern
-
-
-
-
-
+-  🌺 Badri Vishal Kasuba, MS Student
+-  🌺 Shourya Tyagi, Intern
+-  🌺 Pranav Dalvi, Intern
