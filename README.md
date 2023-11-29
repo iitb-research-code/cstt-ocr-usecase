@@ -1,1 +1,44 @@
 # cstt-ocr-usecase
+
+## Installation steps
+
+
+```
+pip install -r requirements.txt
+brew install tesseract
+brew install poppler
+```
+
+## Execution Command
+
+```
+python main.py -i *INPUT_PDF_or_IMAGE_PATH* -im *TYPE_of_INPUT* -l *LANGUAGE_MODEL* -m *MODE_OF_EXTRACTION* -s *START_PAGE* -e *END_PAGE*
+```
+
+## Different Modes of Execution
+
+
+
+| Mode 1                  | Mode 2                  | Mode 3                  |
+|-------------------------|-------------------------|-------------------------|
+| ![Mode 1](data/mode_samples/mode1.png) | ![Mode 2](data/mode_samples/mode2.png) | ![Mode 3](data/mode_samples/mode3.png) |
+
+| Mode 4                 | Mode 5                 | Mode 6                 |
+|-------------------------|-------------------------|-------------------------|
+| ![Mode 4](data/mode_samples/mode4.png) | ![Mode 5](data/mode_samples/mode5.png) | ![Mode 6](data/mode_samples/mode6.png) |
+
+| Mode 7                 |
+|-------------------------|
+| ![Mode 7](data/mode_samples/mode7.png) |
+
+
+## Authors
+
+1. Badri Vishal Kasuba, MS Student
+2. Shourya Tyagi, Intern
+3. Pranav Dalvi, Intern
+
+
+
+
+
