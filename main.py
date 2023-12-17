@@ -26,15 +26,18 @@ def extract_info_mode1(txt):
     eng, ind, des = '', '', ''
     data = []
     for line in lines:
-        if(len(line)>4 and line[0] not in string.punctuation and not line[0].isdigit()):
+        replace_punctuation = str.maketrans(string.punctuation, ' '*len(string.punctuation))
+        text = line.translate(replace_punctuation)
+        line=text.replace('\n', ' ').replace('. ',' ').split()
+        if(len(line)>1):
             if(ord(line[0])<150 and len(line.strip().split(' ')[0])>=2):
-                if(len(ind)>3):
+                if(len(ind)>0):
                     data.append([eng, ind, des])
                 eng, ind, des = '', '', ''
                 line = line.strip().split()
                 eng_word_flag=True
                 for word in line:
-                    if(word in '-|:;"\'`~!@#$%^&*()-_+?<>[{()}]=1234567890'):
+                    if(word in '-|:;"\'`~!@#$%^&*()-_+?<>[{()}]='):
                         continue
                     elif(ord(word[0])<120 and eng_word_flag) :
                         eng += word + ' '
@@ -44,7 +47,7 @@ def extract_info_mode1(txt):
             else:
                 des += line
     
-    if(len(ind)>3):
+    if(len(ind)>0):
         data.append([eng, ind, des])
         
     return data
@@ -111,44 +114,35 @@ def extract_info_mode5(txt):
     eng,word1,word2,word3,word4='','','','',''
     for i in tesseract_output:
         if len(i)>1 and not i[0].isdigit():
-            words=i.split()
-            if ord(words[0][0])<150 and len(words[0])>=2 and words[0][0] not in string.punctuation:
-                if (len(eng)>1 and len(word1)>1 and len(word2)>1 and len(word3)>1):
+            replace_punctuation = str.maketrans(string.punctuation, ' '*len(string.punctuation))
+            text = i.translate(replace_punctuation)
+            words=text.replace('\n', ' ').replace('. ',' ').split()
+            if ord(words[0][0])<150 and len(words[0])>=2:
+                if (len(eng)>0 and (len(word1)>0 or len(word2)>0) and (len(word3)>0 or len(word4)>0)):
                     data.append([eng.strip(),word1.strip(),word2.strip(),word3.strip(),word4.strip()])
                     # print("->>>",[eng,word1,word2,word3,word4])
                 eng,word1,word2,word3,word4='','','','',''
-                for j in words:
+                for word in words:
                     # print(j,ord(j[0]))
-                    if j[0] in '-:"=<>{}[](*&^%\$#@!+=-_`~)\'1234567890':
+                    if word[0] in '-:"=<>{}[](*&^%\$#@!+=-_`~)\'':
                         continue
-                    if ord(j[0])<150:
-                        eng+=j+' '
-                    elif ord(j[0])>2300 and ord(j[0])<2900:
-                        for h in j:
-                            if h not in '\u200c':
-                                word2+=h
-                        word2+=' '
+                    if ord(word[0])<150:
+                        eng+=word+' '
+                    elif ord(word[0])>2300 and ord(word[0])<2500:
+                        word2+=word+' '
                     else:
-                        for h in j:
-                            if h not in '\u200c':
-                                word1+=h
-                        word1+=' '
+                        word1+=word+' '
             else:
                 for j in words:
                     # print(j,ord(j[0]))
                     if j[0] in '-:"=<>{}[](*&^%\$#@!+=-_`~)\'1234567890':
                         continue
-                    if ord(j[0])>2300 and ord(j[0])<2900:
-                        for h in j:
-                            if h not in '\u200c':
-                                word3+=h
-                        word3+=' '
+                    if ord(j[0])>2300 and ord(j[0])<2500:
+                        word3+=j+' '
                     else:
-                        for h in j:
-                            if h not in '\u200c':
-                                word4+=h
-                        word4+=' '
-    if (len(eng)>1 and len(word1)>1 and len(word2)>1 and len(word3)>1):
+                        word4+=j+' '
+    # print([eng.strip(),word1.strip(),word2.strip(),word3.strip(),word4.strip()])
+    if (len(eng)>0 and (len(word1)>0 or len(word2)>0) and (len(word3)>0 or len(word4)>0)):
         data.append([eng.strip(),word1.strip(),word2.strip(),word3.strip(),word4.strip()])
         # print("->>>",[eng,word1,word2,word3,word4])
     return data
@@ -168,7 +162,7 @@ def mode6_data_extraction(word):
       i=i.split()
       if i[0][:3]=='---' or i[0]==',':
         # print('data',[eng_word,ori_word])
-        if len(eng_word)>1 and len(ori_word)>1:
+        if len(eng_word)>0 and len(ori_word)>0:
           data.append([eng_word,ori_word])
         eng_word=''
         ori_word=''
@@ -190,7 +184,7 @@ def mode6_data_extraction(word):
         continue
       if i[0][0] in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ':
         # print('data',[eng_word,ori_word])
-        if len(eng_word)>1 and len(ori_word)>1:
+        if len(eng_word)>0 and len(ori_word)>0:
           data.append([eng_word,ori_word])
         eng_word=''
         ori_word=''
@@ -205,10 +199,10 @@ def mode6_data_extraction(word):
               i_word+=j
               eng_word+=j+' '
             else:
-              if len(i_word)>1 and len(eng_word)<1 and index==0:
+              if len(i_word)>0 and len(eng_word)<1 and index==0:
                 eng_word+=i_word+' '
               c_word=j[:-1]+' '
-              if len(i_word)>1:
+              if len(i_word)>0:
                 c_word=i_word
               i_word=''
               i_time=0
@@ -220,7 +214,7 @@ def mode6_data_extraction(word):
           ori_word+=j+' '
       i_time+=1
 
-  if len(eng_word)>1 and len(ori_word)>1:
+  if len(eng_word)>0 and len(ori_word)>0:
     # print('data',[eng_word,ori_word])
     data.append([eng_word,ori_word])
   return data
@@ -295,6 +289,40 @@ def extract_info_mode7(tesseract_output,x):
       result.append([col1,col2,col3])
   return result
 
+def extract_info_mode8(txt):
+    lines = txt.split('\n')
+    col1, col2, col3 = '', '', ''
+    data = []
+    for line in lines:
+        temp = ''
+        replace_punctuation = str.maketrans(string.punctuation, ' '*len(string.punctuation))
+        text = line.translate(replace_punctuation)
+        line=text.replace('\n', ' ').replace('. ',' ').split()
+        if(len(line)>0):
+            for word in line:
+                if(word[0] in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ\'.,-'):
+                    if(len(col2)>0 and len(col3)>0):
+                        data.append([col1, col2, col3])
+                        print([col1, col2, col3])
+                        col1, col2, col3 = temp, '', ''
+                        temp = ''
+                    if len(col1)==0:
+                        col1=temp
+                        temp=''
+                    col2+=word + ' '
+                else:
+                    temp += word +' '
+            if len(col1)>0:
+                col3 += temp
+            else: 
+                col1=temp
+    
+    if(len(col2)>0 and len(col1)>0):
+        data.append([col1, col2, col3])
+        print([col1, col2, col3])
+        
+    return data
+
 def main(args):
     """_summary_
 
@@ -343,7 +371,7 @@ def main(args):
             except:
                 pass
 
-        if args.mode=='2':
+        elif args.mode=='2':
             txt = pytesseract.image_to_string(gray_image, lang=args.language_model, config=TESSDATA_DIR_CONFIG)
 
             try:
@@ -394,9 +422,18 @@ def main(args):
             except:
                 pass
         
+        elif args.mode=='8':
+            txt = pytesseract.image_to_string(gray_image, lang=args.language_model, config=TESSDATA_DIR_CONFIG)
+
+            try:
+                value = extract_info_mode8(txt)
+                result.extend(value)
+            except:
+                pass
+        
     if args.mode == '1':
         df = pd.DataFrame(result, columns = ['English Word','Indic Meaning','Indic Description'])
-    if args.mode == '2':
+    elif args.mode == '2':
         df = pd.DataFrame(result, columns = ['English Word','Indic Meaning','Indic Description'])
     elif args.mode == '3':
         df = pd.DataFrame(result, columns = ['Sanskrit Word','English Vocab','Description'])
@@ -408,8 +445,11 @@ def main(args):
         df = pd.DataFrame(result, columns= ['English Word','Oriya Word'])
     elif args.mode == '7':
         df = pd.DataFrame(result, columns= ['Col1','Col2','Col3'])
+    elif args.mode == '8':
+        df = pd.DataFrame(result, columns= ['Col1','Col2','Col3'])
     
-    out_file = os.path.join(OUTPUT_DIR, args.images_folder_name, 'results.csv')
+    out_file = os.path.join(OUTPUT_DIR, 'results.csv')
+    print('saving the result at',out_file)
     df.to_csv(out_file, index=False)
     
     
@@ -420,7 +460,7 @@ def parse_args():
     parser.add_argument("-i", "--orig_pdf_path", type=str, default=None, help="path to the input pdf file")
     parser.add_argument("-im", "--images_folder_name", type=str, default="pdf", help="type of input file | pdf/images")
     parser.add_argument("-l", "--language_model", type=str, default="Devangari", help="language to be used for OCR")
-    parser.add_argument("-m", "--mode", type=str, default='1', help="mode 1 => 1 , mode 2 => 2 , Eng-Sanskrit => 3 , bhandaran => 4, English_Hindi_Tamil => 5 , English_Oriya => 6 , English_English_Hindi => 7")
+    parser.add_argument("-m", "--mode", type=str, default='1', help="mode 1 => 1 , mode 2 => 2 , Eng-Sanskrit => 3 , bhandaran => 4, English_Hindi_Tamil => 5 , English_Oriya => 6 , English_English_Hindi => 7 , Hindi_English_Hindi => 8")
     parser.add_argument("-s", "--start-page", type=str, default=None, help="Start page for OCR")
     parser.add_argument("-e", "--end-page", type=str, default=None, help="End page for OCR")
     

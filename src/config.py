@@ -8,4 +8,4 @@ JPEGOPT={
     "optimize"    : False
 }
 
-TESSDATA_DIR_CONFIG = '--oem 3 --psm 6 --tessdata-dir "/Users/badrivishalkasuba/Desktop/research/projects/tessdata/"'
+TESSDATA_DIR_CONFIG = '--oem 3 --psm 6'
