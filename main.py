@@ -25,29 +25,43 @@ def extract_info_mode1(txt):
     lines = txt.split('\n')
     eng, ind, des = '', '', ''
     data = []
+    # print(lines)
     for line in lines:
-        replace_punctuation = str.maketrans(string.punctuation, ' '*len(string.punctuation))
-        text = line.translate(replace_punctuation)
-        line=text.replace('\n', ' ').replace('. ',' ').split()
         if(len(line)>1):
-            if(ord(line[0])<150 and len(line.strip().split(' ')[0])>=2):
+            flag=True
+            replace_punctuation = str.maketrans(string.punctuation, ' '*len(string.punctuation))
+            text = line.translate(replace_punctuation)
+            line=text.replace('\n', ' ').replace('. ',' ')
+            # print([line.split()])
+            if(line[0] in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ' and len(line.strip().split(' ')[0])>=2):
                 if(len(ind)>0):
+                    # print('->>>',[eng, ind, des])
                     data.append([eng, ind, des])
                 eng, ind, des = '', '', ''
                 line = line.strip().split()
-                eng_word_flag=True
                 for word in line:
-                    if(word in '-|:;"\'`~!@#$%^&*()-_+?<>[{()}]='):
-                        continue
-                    elif(ord(word[0])<120 and eng_word_flag) :
+                    if word[0] in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ':
                         eng += word + ' '
                     else:
                         ind += word + ' '
-                        eng_word_flag=False
             else:
-                des += line
+                for word in line.split():
+                    if word[0] in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ':
+                        if(len(ind)>0):
+                            # print('->>>',[eng, ind, des])
+                            data.append([eng, ind, des])
+                            eng, ind, des = '', '', ''
+                        if flag:
+                            eng, ind, des = '', '', ''
+                        eng += word + ' '
+                        flag=False
+                    elif flag:
+                        des += word + " "
+                    else:
+                        ind += word + ' '
     
     if(len(ind)>0):
+        # print('->>>',[eng, ind, des])
         data.append([eng, ind, des])
         
     return data
@@ -86,21 +100,30 @@ def extract_info_mode4(txt):
     data=[]
     eng,ind='',''
     prev_word=0
-    for word in lines:
-        word=word.split()
+    for line in lines:
+        word=line.split()
         try:
-            if word[11]!='-1' and word[11].strip()[0] not in '-|:;"\'`~!@#$%^&*()-_+?<>[{()}]=1234567890':
-                # print(word[11])
-                if int(word[6])<500:
-                    if abs(int(word[7])-prev_word)<10:
-                        eng+=word[11]+' '
-                    else:
-                        if len(eng)>0 and len(ind)>0:
-                            data.append([eng,ind])
-                        eng,ind=word[11],''
-                    prev_word=int(word[7])
-                else:
-                    ind+=word[11]+' '
+            # if word[11]!='-1' and word[11].strip()[0] not in '-|:;"\'`~!@#$%^&*()-_+?<>[{()}]=1234567890':
+            #     # print(word[11])
+            #     if int(word[6])<500:
+            #         if abs(int(word[7])-prev_word)<10:
+            #             eng+=word[11]+' '
+            #         else:
+            #             if len(eng)>0 and len(ind)>0:
+            #                 data.append([eng,ind])
+            #             eng,ind=word[11],''
+            #         prev_word=int(word[7])
+            #     else:
+            #         ind+=word[11]+' '
+            if word[0] in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ':
+                if len(eng)>0 and len(ind)>0:
+                    data.append([eng,ind])
+                    eng,ind='',''
+                eng+=word+' '
+            elif word[0] in '-':
+                continue
+            else:
+                ind+=word+' '
         except:
             pass
     if len(eng)>0 and len(ind)>0:
@@ -155,7 +178,7 @@ def mode6_data_extraction(word):
   i_time=0
   c_word=''
   for i in word:
-    if len(i)>1:
+    if len(i)>0:
       if i_time>1:
         i_word=''
         i_time=0
@@ -174,18 +197,18 @@ def mode6_data_extraction(word):
               flag=False
           except:
             pass
-          if i[j][0] in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ' and j==1 and flag:
-            eng_word+=c_word+i[j]+' '
-          elif i[j][0] in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ':
-            eng_word+=i[j]+' '
-          elif i[j][0] not in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ-':
-            ori_word+=i[j]+' '
+            if i[j][0] in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ' and j==1 and flag:
+                eng_word+=c_word+i[j]+' '
+            elif i[j][0] in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ':
+                eng_word+=i[j]+' '
+            elif i[j][0] not in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ-':
+                ori_word+=i[j]+' '
           
         continue
       if i[0][0] in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ':
         # print('data',[eng_word,ori_word])
         if len(eng_word)>0 and len(ori_word)>0:
-          data.append([eng_word,ori_word])
+            data.append([eng_word,ori_word])
         eng_word=''
         ori_word=''
         for index,j in enumerate(i):
@@ -303,7 +326,7 @@ def extract_info_mode8(txt):
                 if(word[0] in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ\'.,-'):
                     if(len(col2)>0 and len(col3)>0):
                         data.append([col1, col2, col3])
-                        print([col1, col2, col3])
+                        # print([col1, col2, col3])
                         col1, col2, col3 = temp, '', ''
                         temp = ''
                     if len(col1)==0:
@@ -319,7 +342,7 @@ def extract_info_mode8(txt):
     
     if(len(col2)>0 and len(col1)>0):
         data.append([col1, col2, col3])
-        print([col1, col2, col3])
+        # print([col1, col2, col3])
         
     return data
 
@@ -331,6 +354,7 @@ def main(args):
     """
     
     images_folder = os.path.join(OUTPUT_DIR, args.images_folder_name, 'images')
+    out_file = os.path.join(OUTPUT_DIR, args.images_folder_name, 'results.csv')
     
     if not os.path.exists(images_folder):
         os.makedirs(images_folder)
@@ -381,7 +405,7 @@ def main(args):
                 pass
 
         elif args.mode=='3':
-            txt = pytesseract.image_to_data(gray_image,lang=args.language_model,config=TESSDATA_DIR_CONFIG)
+            txt = pytesseract.image_to_string(gray_image,lang=args.language_model,config=TESSDATA_DIR_CONFIG)
 
             try:
                 value = extract_info_mode3(txt)
@@ -448,7 +472,7 @@ def main(args):
     elif args.mode == '8':
         df = pd.DataFrame(result, columns= ['Col1','Col2','Col3'])
     
-    out_file = os.path.join(OUTPUT_DIR, 'results.csv')
+    
     print('saving the result at',out_file)
     df.to_csv(out_file, index=False)
     
