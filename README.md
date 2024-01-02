@@ -27,9 +27,9 @@ python main.py -i <strong>INPUT_PDF_or_IMAGE_PATH</strong> -im <strong>TYPE_of_I
 |-------------------------|-------------------------|-------------------------|
 | ![Mode 4](data/mode_samples/mode4.png) | ![Mode 5](data/mode_samples/mode5.png) | ![Mode 6](data/mode_samples/mode6.png) |
 
-| Mode 7                 |
-|-------------------------|
-| ![Mode 7](data/mode_samples/mode7.png) |
+| Mode 7                 |Mode 8                  |
+|-------------------------|-------------------------|
+| ![Mode 7](data/mode_samples/mode7.png) | ![Mode 8](data/mode_samples/mode8.png) |
 
 
 ## Authors
