@@ -541,6 +541,43 @@ def extract_info_mode10(img_path,language,config):
 
     return output
 
+def extract_info_mode11(txt):
+    lines = txt.split('\n')
+    tamil_range = (0x0B80, 0x0BFF)
+    col1, col2, col3 = '', '', ''
+    data = []
+    for line in lines:
+        temp = ''
+        replace_punctuation = str.maketrans(string.punctuation, ' '*len(string.punctuation))
+        text = line.translate(replace_punctuation)
+        line=text.replace('\n', ' ').replace('. ',' ').split()
+        if(len(line)>0):
+            for word in line:
+                # print('FIRST WORD :',word[0])
+                if(word[0] in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ\'.,-'):
+                    if(len(col1)>0 and len(col2)>0 and len(col3)>0):
+                        # print([col1,col2,col3])
+                        data.append([col1, col2, col3])
+                        col1, col2, col3 = '', '', ''
+                    if len(col1)==0:
+                        col1=word+' '
+                    else:
+                        col1+=word + ' '
+                elif tamil_range[0] <= ord(word[0]) <= tamil_range[1]:
+                    if len(col3)==0:
+                        col3=word+' '
+                    else:
+                        col3+=word + ' '
+                else:
+                    if len(col2)==0:
+                        col2=word+' '
+                    else:
+                        col2+=word+' '
+    if(len(col1)>0 and len(col2)>0 and len(col3)>0):
+        data.append([col1, col2, col3]) 
+
+    return data
+
 def main(args):
     """_summary_
 
@@ -550,6 +587,8 @@ def main(args):
     
     images_folder = os.path.join(OUTPUT_DIR, args.images_folder_name, 'images')
     out_file = os.path.join(OUTPUT_DIR, args.images_folder_name, 'results.csv')
+
+    print('Starting')
     
     if not os.path.exists(images_folder):
         os.makedirs(images_folder)
@@ -663,7 +702,16 @@ def main(args):
                 result.extend(value)
             except:
                 pass
+        
+        elif args.mode=='11':
+            txt = pytesseract.image_to_string(gray_image, lang=args.language_model, config=TESSDATA_DIR_CONFIG)
 
+            try:
+                value = extract_info_mode11(txt)
+                result.extend(value)
+            except:
+                pass
+        
     if args.mode == '1':
         df = pd.DataFrame(result, columns = ['English Word','Indic Meaning','Indic Description'])
     elif args.mode == '2':
@@ -684,6 +732,8 @@ def main(args):
         df = pd.DataFrame(result, columns = ['col1','col2'])
     elif args.mode == '10':
         df = pd.DataFrame(result, columns = ['col1','col2'])
+    elif args.mode == '11':
+        df = pd.DataFrame(result, columns = ['col1','col2','col3'])
     
     
     print('saving the result at',out_file)
@@ -696,7 +746,7 @@ def parse_args():
 
     parser.add_argument("-i", "--orig_pdf_path", type=str, default=None, help="path to the input pdf file")
     parser.add_argument("-im", "--images_folder_name", type=str, default="pdf", help="type of input file | pdf/images")
-    parser.add_argument("-l", "--language_model", type=str, default="Devangari", help="language to be used for OCR")
+    parser.add_argument("-l", "--language_model", type=str, default="eng+hin", help="language to be used for OCR")
     parser.add_argument("-m", "--mode", type=str, default='1', help="mode 1 => 1 , mode 2 => 2 , Eng-Sanskrit => 3 , bhandaran => 4, English_Hindi_Tamil => 5 , English_Oriya => 6 , English_English_Hindi => 7 , Hindi_English_Hindi => 8")
     parser.add_argument("-s", "--start-page", type=str, default=None, help="Start page for OCR")
     parser.add_argument("-e", "--end-page", type=str, default=None, help="End page for OCR")
