@@ -29,14 +29,14 @@ python main.py -i <strong>INPUT_PDF_or_IMAGE_PATH</strong> -im <strong>TYPE_of_I
 
 | Mode 7                 |Mode 8                  |Mode 9                  |
 |-------------------------|-------------------------|-------------------------|
-| ![Mode 7](data/mode_samples/mode7.png) | ![Mode 8](data/mode_samples/mode8.png) | ![Mode 9](data/mode_samples/mode9.png)
+| ![Mode 7](data/mode_samples/mode7.png) | ![Mode 8](data/mode_samples/mode8.png) | ![Mode 9](data/mode_samples/mode9.png)|
 
 | Mode 10                 |Mode 11                  |Mode 12                  |
-|-------------------------|-------------------------|
-| ![Mode 7](data/mode_samples/mode7.png) | ![Mode 8](data/mode_samples/mode11.jpg) | ![Mode 12](data/mode_samples/mode12.png)
+|-------------------------|-------------------------|-------------------------|
+| ![Mode 7](data/mode_samples/mode7.png) | ![Mode 8](data/mode_samples/mode11.jpg) | ![Mode 12](data/mode_samples/mode12.jpg)|
 | Mode 13                 |
 |-------------------------|
-| ![Mode 13](data/mode_samples/mode13.png) |
+| ![Mode 13](data/mode_samples/mode13.jpg) |
 
 
 ## Authors
