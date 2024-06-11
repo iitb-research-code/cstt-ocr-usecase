@@ -578,6 +578,136 @@ def extract_info_mode11(txt):
 
     return data
 
+def extract_mode12_data(tesseract_output, x):
+    line = -1
+    para = -1
+    col1=''
+    temp1=''
+    col2=''
+    temp2=''
+    col3=''
+    temp3=''
+    result=[]
+    for word in tesseract_output.split('\n')[1:]:
+        word=word.split()
+        try:
+            curr_line = int(word[4])
+            curr_para = int(word[3])
+            if word[11]!='-1' and word[11].strip()[0] not in ' |:;"\'`~!@#$%^&*()-_+?=1234567890.':
+                if line!=curr_line or curr_para!=para:
+                    line = curr_line
+                    para = curr_para
+                    if len(temp1)>0 and len(temp3)>0:
+                        if len(col1)>0 and len(col3)>0:
+                            result.append([col1,col2,col3])
+                            # print([col1,col2,col3], 'added')
+                        col1=temp1
+                        col2=temp2
+                        col3=temp3
+                        temp1 = ''
+                        temp2 = ''
+                        temp3 = ''
+                    elif len(temp1)>0:
+                        col1+=temp1
+                        temp1 = ''
+                    elif len(temp2)>0:
+                        col2+=temp2
+                        temp2 = ''
+                    elif len(temp3)>0:
+                        col3+=temp3
+                        temp3 = ''
+                # print('word :', word[11])
+                if (word[11][0] in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ,\'"/' or word[11][1] in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ\'"/'):
+                    temp1 += word[11] + ' '
+                elif int(word[6])<5*x/8 and (word[11][0] not in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ,\'"/' or word[11][1] not in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ\'"/'):
+                    temp2 += word[11] + ' '
+                elif (word[11][0] not in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ,\'"/' or word[11][1] not in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ\'"/'):
+                    temp3 += word[11] + ' '
+                # print('temp :', [temp1, temp2, temp3])
+                # print('col :', [col1,col2,col3])
+
+
+        except Exception as e:
+            # print(e)
+            # print(word)
+            pass
+    
+    if len(col1)>0 and len(col3)>0:
+        result.append([col1,col2,col3])
+        # print([col1,col2,col3], 'added')
+
+    if len(temp1)>0 and len(temp3)>0:
+        result.append([temp1, temp2, temp3])
+        # print([temp1,temp2,temp3], 'added')
+    return result
+
+def extract_info_mode12(img_path,language,config):
+    img=cv2.imread(img_path)
+    y,x=img.shape[:2]
+    tesseract_output=pytesseract.image_to_data(img,lang=language,config=config)
+    result=extract_mode12_data(tesseract_output,x)
+    return result
+
+def extract_mode13_data(tesseract_output, x):
+    line = -1
+    para = -1
+    col1=''
+    temp1=''
+    col3=''
+    temp3=''
+    result=[]
+    for word in tesseract_output.split('\n')[1:]:
+        word=word.split()
+        try:
+            curr_line = int(word[4])
+            curr_para = int(word[3])
+            if word[11]!='-1' and word[11].strip()[0] not in ' |:;"\'`~!@#$%^&*()-_+?=1234567890.':
+                if line!=curr_line or curr_para!=para:
+                    line = curr_line
+                    para = curr_para
+                    if len(temp1)>0 and len(temp3)>0:
+                        if len(col1)>0 and len(col3)>0:
+                            result.append([col1,col3])
+                            # print([col1,col3], 'added')
+                        col1=temp1
+                        col3=temp3
+                        temp1 = ''
+                        temp3 = ''
+                    elif len(temp1)>0:
+                        col1+=temp1
+                        temp1 = ''
+                    elif len(temp3)>0:
+                        col3+=temp3
+                        temp3 = ''
+                # print('word :', word[11])
+                if (word[11][0] in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ,\'"/' or word[11][1] in 'abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ\'"/'):
+                    temp1 += word[11] + ' '
+                else:
+                    temp3 += word[11] + ' '
+                # print('temp :', [temp1, temp3])
+                # print('col :', [col1,col3])
+
+
+        except Exception as e:
+            print(e)
+            # print(word)
+            pass
+    if len(col1)>0 and len(col3)>0:
+        result.append([col1,col3])
+        # print([col1,col2,col3], 'added')
+
+    if len(temp1)>0 and len(temp3)>0:
+        result.append([temp1, temp3])
+        # print([temp1,temp2,temp3], 'added')
+    return result
+
+def extract_info_mode13(img_path,language,config):
+    img=cv2.imread(img_path)
+    y,x=img.shape[:2]
+    tesseract_output=pytesseract.image_to_data(img,lang=language,config=config)
+    result=extract_mode13_data(tesseract_output,x)
+    return result
+
 def main(args):
     """_summary_
 
@@ -711,6 +841,21 @@ def main(args):
                 result.extend(value)
             except:
                 pass
+
+        elif args.mode=='12':
+            try:
+                value=extract_info_mode12(img_path,args.language_model,TESSDATA_DIR_CONFIG)
+                print(value)
+                result.extend(value)
+            except:
+                pass
+
+        elif args.mode=='13':
+            try:
+                value=extract_info_mode13(img_path,args.language_model,TESSDATA_DIR_CONFIG)
+                result.extend(value)
+            except:
+                pass
         
     if args.mode == '1':
         df = pd.DataFrame(result, columns = ['English Word','Indic Meaning','Indic Description'])
@@ -734,6 +879,10 @@ def main(args):
         df = pd.DataFrame(result, columns = ['col1','col2'])
     elif args.mode == '11':
         df = pd.DataFrame(result, columns = ['col1','col2','col3'])
+    elif args.mode == '12':
+        df = pd.DataFrame(result, columns = ['col1','col2','col3'])
+    elif args.mode == '13':
+        df = pd.DataFrame(result, columns = ['col1','col2'])
     
     
     print('saving the result at',out_file)
