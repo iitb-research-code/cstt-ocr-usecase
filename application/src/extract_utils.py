@@ -1,12 +1,12 @@
 import os
 import string
 import pandas as pd
-import argparse
+import streamlit as st
 from PIL import Image
 import cv2
 import pytesseract
 from tqdm import tqdm
-
+import numpy as np
 from pdf2image import convert_from_path
 
 from src.config import DPI, JPEGOPT, TESSDATA_DIR_CONFIG, OUTPUT_DIR
@@ -227,37 +227,51 @@ def mode6_data_extraction(lines):
     data.append([col1,col2])
   return data
 
-def extract_info_mode6(img_path,language,config):
-    image = cv2.imread(img_path)
-    img_y,img_x=image.shape[:2]
-    gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+def extract_info_mode6(image,language,config):
+    img_array = np.array(image)
+    cv2.imwrite('temp.jpg',img_array)
+    img = cv2.imread('temp.jpg')
+    img_y,img_x=img.shape[:2]
+    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     thresh = cv2.adaptiveThreshold(gray, 255,cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 21, 10)
     # Detect vertical lines
     vertical_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1,10))
     detect_vertical = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, vertical_kernel, iterations=2)
     cnts = cv2.findContours(detect_vertical, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+    xl,yl,xh,yh=0,0,int(img_x/10),int(img_y/10)
     for c in cnts:
         x,y,w,h = cv2.boundingRect(c)
         if h>img_y/3 and x>img_x/3 and x<img_x*2/3:
             xl,yl,xh,yh=x,y,w,h
-
-    # Getting the Left and Right colunns...
-    h,w,_=image.shape
-    left_block=[0,yl,xl,yl+yh]
-    right_block=[xl+xh,yl,w,yl+yh]
-
-    # Extracting Data ...
-    l_img=image[left_block[1]:left_block[3],left_block[0]:left_block[2]]
-    words=pytesseract.image_to_string(l_img,lang=language,config=config)
-    word0=words.split('\n')
-    output=mode6_data_extraction(word0)
+        # else:
+        #     xl,yl,xh,yh=x,y,w,h
+        # else:
+        #     xl,yl,xh,yh=0,0,img_x-10,img_y-10
 
 
-    r_img=image[right_block[1]:right_block[3],right_block[0]:right_block[2]]
-    words=pytesseract.image_to_string(r_img,lang=language,config=config)
-    word1=words.split('\n')
-    output.extend(mode6_data_extraction(word1))
+
+    # # Extracting Data ...
+    # try:
+
+    #         # Getting the Left and Right colunns...
+    #     h,w,_=img.shape
+    #     left_block=[0,yl,xl,yl+yh]
+    #     right_block=[xl+xh,yl,w,yl+yh]
+
+    #     l_img=img[left_block[1]:left_block[3],left_block[0]:left_block[2]]
+    #     words=pytesseract.image_to_string(l_img,lang=language,config=config)
+    #     word0=words.split('\n')
+    #     output=mode6_data_extraction(word0)
+
+
+    #     r_img=img[right_block[1]:right_block[3],right_block[0]:right_block[2]]
+    #     words=pytesseract.image_to_string(r_img,lang=language,config=config)
+    #     word1=words.split('\n')
+    #     output.extend(mode6_data_extraction(word1))
+    # except:
+    output=mode9_data_extraction(img,language,config)
+    
 
     return output
 
@@ -395,8 +409,7 @@ def mode9_data_extraction(img,language,config):
     return result
 
 
-def extract_info_mode9(img_path,language,config):
-    image = cv2.imread(img_path)
+def extract_info_mode9(image,language,config):
     output=[]
     try:
         img_y,img_x=image.shape[:2]
@@ -512,8 +525,7 @@ def mode10_data_extraction(img,language,config):
     return result
 
 
-def extract_info_mode10(img_path,language,config):
-    img=cv2.imread(img_path)
+def extract_info_mode10(img,language,config):
     output=[]
     try:
         img_y,img_x=img.shape[:2]
@@ -641,9 +653,9 @@ def extract_mode12_data(tesseract_output, x):
         # print([temp1,temp2,temp3], 'added')
     return result
 
-def extract_info_mode12(img_path,language,config):
-    img=cv2.imread(img_path)
-    y,x=img.shape[:2]
+def extract_info_mode12(img,language,config):
+    img_array = np.array(img)
+    y,x=img_array.shape[:2]
     tesseract_output=pytesseract.image_to_data(img,lang=language,config=config)
     result=extract_mode12_data(tesseract_output,x)
     return result
@@ -701,9 +713,10 @@ def extract_mode13_data(tesseract_output, x):
         # print([temp1,temp2,temp3], 'added')
     return result
 
-def extract_info_mode13(img_path,language,config):
-    img=cv2.imread(img_path)
-    y,x=img.shape[:2]
+def extract_info_mode13(img,language,config):
+    img_array = np.array(img)
+    y,x=img_array.shape[:2]
     tesseract_output=pytesseract.image_to_data(img,lang=language,config=config)
     result=extract_mode13_data(tesseract_output,x)
     return result
+
